@@ -1,6 +1,15 @@
 import styles from "./SearchBar.module.css";
 
-export default function SearchBar() {
+interface SearchBarProps {
+  onSearch: (query: string) => void;
+}
+
+export default function SearchBar({ onSearch }: SearchBarProps) {
+  const handleSubmit = (FormData: FormData) => {
+    // const values = Object.fromEntries(FormData);
+    const query = FormData.get("query") as string;
+    onSearch(query);
+  };
   return (
     <header className={styles.header}>
        {" "}
@@ -15,7 +24,7 @@ export default function SearchBar() {
                 Powered by TMDB    {" "}
         </a>
            {" "}
-        <form className={styles.form}>
+        <form className={styles.form} action={handleSubmit}>
                {" "}
           <input
             className={styles.input}
