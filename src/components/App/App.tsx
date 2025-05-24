@@ -1,54 +1,56 @@
-import axios from "axios";
 import { useState } from "react";
-// import css from "./App.module.css";
-import SearchBar from "../SearchBar/SearchBar";
 import type { Movie } from "../../types/movie";
+import { fetchMovies } from "../../services/movieService";
+import SearchBar from "../SearchBar/SearchBar";
+import toast, { Toaster } from "react-hot-toast";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import Loader from "../Loader/Loader";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import MovieModal from "../MovieModal/MovieModal";
 
-interface GetMoviesRes {
-  results: Movie[];
-}
+export default function App() {
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [loader, setLoader] = useState(false);
+  const [error, setError] = useState(false);
 
-function App() {
-  const [movies, getMovies] = useState<Movie[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSearch = async (newQuery: string) => {
-    const BEARER_TOKEN = import.meta.env.VITE_TMDB_BEARER;
+  const handleSearch = async (query: string) => {
+    setMovies([]);
+    setLoader(true);
+    setError(false);
 
     try {
-      setIsLoading(true);
-
-      const res = await axios.get<GetMoviesRes>(
-        `https://api.themoviedb.org/3/search/movie?query=${newQuery}`,
-        {
-          headers: {
-            Authorization: `Bearer ${BEARER_TOKEN}`,
-          },
-        }
-      );
-      getMovies(res.data.results);
-      //   console.log("Результати:", );
-    } catch (error) {
-      console.error("Помилка при запиті:", error);
+      const result = await fetchMovies(query);
+      if (result.length === 0) {
+        toast.error("No movies found for your request.");
+      }
+      setMovies(result);
+      console.log(result);
+    } catch {
+      setError(true);
     } finally {
-      setIsLoading(false);
+      setLoader(false);
     }
   };
+
+  const handleSelect = (movie: Movie) => {
+    setSelectedMovie(movie);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedMovie(null);
+  };
+
   return (
     <>
-      <SearchBar onSearch={handleSearch} />
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <MovieGrid
-          movies={movies}
-          onSelect={(movie) => console.log("Selected movie:", movie)}
-        />
+      <Toaster />
+      <SearchBar onSubmit={handleSearch} />
+      {loader && <Loader />}
+      {error && <ErrorMessage />}
+      {!error && <MovieGrid onSelect={handleSelect} movies={movies} />}
+      {selectedMovie && (
+        <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
       )}
     </>
   );
 }
-
-export default App;
