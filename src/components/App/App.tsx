@@ -44,7 +44,7 @@ export default function App() {
   return (
     <>
       <Toaster />
-      <SearchBar onSubmit={handleSearch} />
+      <SearchBar onSearch={handleSearch} />
       {loader && <Loader />}
       {error && <ErrorMessage />}
       {!error && <MovieGrid onSelect={handleSelect} movies={movies} />}

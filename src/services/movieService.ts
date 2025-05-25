@@ -6,7 +6,7 @@ interface MovieResponce {
 }
 
 export const fetchMovies = async (query: string): Promise<Movie[]> => {
-  //   console.log(import.meta.env.VITE_TMDB_BEARER);
+  console.log(import.meta.env.VITE_TMDB_BEARER);
 
   const response = await axios.get<MovieResponce>(
     "https://api.themoviedb.org/3/search/movie",

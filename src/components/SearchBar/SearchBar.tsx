@@ -1,54 +1,49 @@
-import { useState } from "react";
+// import { useState } from "react";
 import styles from "./SearchBar.module.css";
 import toast from "react-hot-toast";
 
 interface SearchBarProps {
-  onSubmit: (query: string) => void;
+  onSearch: (query: string) => void;
 }
 
-export default function SearchBar({ onSubmit }: SearchBarProps) {
-  const [query, setQuery] = useState("");
+export default function SearchBar({ onSearch }: SearchBarProps) {
+  async function handleSubmit(formData: FormData) {
+    const query = formData.get("query")?.toString().trim();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!query.trim()) {
+    if (!query) {
       toast.error("Please enter your search query.");
       return;
     }
 
-    onSubmit(query);
-    setQuery("");
-  };
+    onSearch(query);
+  }
 
   return (
-    <>
-      <header className={styles.header}>
-        <div className={styles.container}>
-          <a
-            className={styles.link}
-            href="https://www.themoviedb.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Powered by TMDB
-          </a>
-          <form className={styles.form} onSubmit={handleSubmit}>
-            <input
-              className={styles.input}
-              type="text"
-              name="query"
-              autoComplete="off"
-              placeholder="Search movies..."
-              autoFocus
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
-            <button className={styles.button} type="submit">
-              Search
-            </button>
-          </form>
-        </div>
-      </header>
-    </>
+    <header className={styles.header}>
+      <div className={styles.container}>
+        <a
+          className={styles.link}
+          href="https://www.themoviedb.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by TMDB
+        </a>
+        {/* тут уже НЕ onSubmit, а action */}
+        <form className={styles.form} action={handleSubmit}>
+          <input
+            className={styles.input}
+            type="text"
+            name="query"
+            autoComplete="off"
+            placeholder="Search movies..."
+            autoFocus
+          />
+          <button className={styles.button} type="submit">
+            Search
+          </button>
+        </form>
+      </div>
+    </header>
   );
 }
